@@ -53,17 +53,17 @@ public:
 
     void rendering();
 
+    void setFeatrueInit(int mode = 0);
+
 private:
 
     // Initial the mesh reader
     ExternalImporter<MyMesh> *exImporter;
-
     QStringList config_modelList;
     QDir config_baseDir;
     QFileInfo config_matrixFile;
     QFileInfo logFile;
     Render *render;
-    ExternalImporter<MyMesh> *exImporter;
     MyMesh mesh;
 };
 

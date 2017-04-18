@@ -1,4 +1,6 @@
 #include "handler.h"
+#include "meancurvature.hh"
+#include "gausscurvature.hh"
 #include <QSettings>
 
 #include <QDateTime>
@@ -42,7 +44,7 @@ Handler::Handler(QString configFileName, QString logFileName)
 }
 
 
-Handler::rendering()
+void Handler::rendering()
 {
     QString fileName;
     // readin and render the models
@@ -72,6 +74,32 @@ Handler::rendering()
 
 }
 
+/**
+  This function is used for initialize the features environment.
+ * @brief Handler::setFeatrueInit
+ * @param mode set mode to determine which kind of features should be extracted.
+ */
+void Handler::setFeatrueInit(int mode = 0)
+{
+    std::vector< MeanCurvature< MyMesh >* > a;
+    std::vector< GaussCurvature< MyMesh >* > b;
+    if(mode  == 3 || mode  == 0)
+    {
+        render->setMeshSaliencyPara(exImporter);
+        for(int i=0;i<render->p_vecMesh.size();i++)
+        {
+            MeanCurvature<MyMesh> *tmpMean = new MeanCurvature<MyMesh>(render->p_vecMesh[i]);
+            GaussCurvature<MyMesh> *tmpGauss = new GaussCurvature<MyMesh>(render->p_vecMesh[i]);
+            a.push_back(tmpMean);
+            b.push_back(tmpGauss);
+        }
+    }
+    render->setAreaAllFaces();
+
+
+
+}
+
 
 void Handler::loadInMesh(QString fileName)
 {
@@ -95,4 +123,5 @@ void Handler::loadInMesh(QString fileName)
         // dispose the face normals, as we don't need them anymore
         mesh.release_face_normals();
     }
+    std::cout << fileName.toStdString() << " loaded in done" << endl;
 }
