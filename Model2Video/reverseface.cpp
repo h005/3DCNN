@@ -33,7 +33,18 @@ ReverseFace::ReverseFace(std::vector<int> &indices)
 
 ReverseFace::~ReverseFace()
 {
-
+    adjTable.clear();
+    adjt.clear();
+    if(id)
+    {
+        delete id;
+        id = NULL;
+    }
+    if(sz)
+    {
+        delete sz;
+        sz = NULL;
+    }
 }
 
 int *ReverseFace::reverseFace(std::vector<int> &indices, std::vector<int> &cs, std::vector<std::set<int> > &cate)
@@ -160,7 +171,7 @@ void ReverseFace::setRelation(std::vector<int> &indices)
                 it->second++;
                 if(it->second == 3)
                 {
-                    std::cout << "debug pairs "<< pairs[j].first << " " << pairs[j].second << std::endl;
+//                    std::cout << "debug pairs "<< pairs[j].first << " " << pairs[j].second << std::endl;
                     flag = 1;
                 }
 //                Q_ASSERT(it->second < 3);

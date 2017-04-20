@@ -105,6 +105,14 @@ Render::~Render()
     p_isVertexVisible.clear();
     p_VisibleFaces.clear();
     p_verticesMvp.clear();
+    p_vecMesh.clear();
+    for(int i=0;i<p_indiceArray.size();i++)
+    {
+        for(int j=0;j<p_indiceArray[i].size();j++)
+            p_indiceArray[i].clear();
+        p_indiceArray.clear();
+    }
+
 }
 
 void Render::cleanup()
@@ -344,6 +352,51 @@ void Render::storeImage(QString path,QString fileName0,int width,int height)
     delete []img;
     rgbaImgFliped.release();
     rgbImg.release();
+}
+
+void Render::storeRenderImage(QString basePath,
+                              QString& fileName,
+                              int width,
+                              int height)
+{
+    QFileInfo finfo(fileName);
+    QString fn = finfo.baseName();
+    QString savePath = basePath.
+            append('/').
+            append(fn).
+            append(".jpg");
+
+    makeCurrent();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT,viewport);
+
+    GLubyte *img =
+            new GLubyte[(viewport[2] - viewport[0])
+            *(viewport[3] - viewport[1])*4];
+    glReadBuffer(GL_BACK_LEFT);
+    glReadPixels(0,
+            0,
+            viewport[2],
+            viewport[3],
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            img);
+
+    cv::Mat rgbaImgFilped = cv::Mat(viewport[3],viewport[2],CV_8UC4,img);
+    cv::Mat rgbImg;
+    cv::flip(rgbaImgFilped,rgbImg,0);
+    cv::resize(rgbImg,rgbImg,cv::Size(width,height));
+    cv::cvtColor(rgbImg,rgbImg,CV_RGBA2BGR);
+    rgbImg.convertTo(rgbImg, CV_8UC3);
+    cv::imwrite(savePath.toStdString(),rgbImg);
+
+    delete []img;
+    rgbaImgFilped.release();
+    rgbImg.release();
+    std::cout << "save to " << savePath.toStdString() << std::endl;
+
 }
 
 double Render::getArea(std::vector<GLuint> &indices,int p)

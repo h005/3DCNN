@@ -10,14 +10,15 @@ Handler::Handler(QString configFileName, QString logFileName)
     QSettings configIni(configFileName,QSettings::IniFormat);
 
     // read in the baseDir
-    config_baseDir = QDir(configIni.value("path/basePath").toString());
+    config_baseDir = QDir(configIni.value("path/baseDir").toString());
+
 
     // read in the model list
     QString modelsString = configIni.value("model/model").toString();
-    config_modelList = modelsString.split(' ');
+    config_modelList = modelsString.split(' ', QString::SkipEmptyParts);
 
     // read in the matrix file
-    config_matrixFile = QFileInfo(configIni.value("matrix/matrix").toString());
+    config_matrixFile = QFileInfo(configIni.value("matrix/matrixFile").toString());
 
     QFileInfo logFile(logFileName);
     // if the file does not exist
@@ -30,17 +31,21 @@ Handler::Handler(QString configFileName, QString logFileName)
         logFile = QFileInfo(tmpLogFileName.append(".log"));
     }
 
-    /* test for the config file read in
-    qDebug() << config_baseDir.absolutePath() << endl;
+    // create the log file
+    flog.open(logFile.absoluteFilePath().toStdString(),std::fstream::out);
+    assert(flog);
 
-    for(int i=0;i<config_modelList.size();i++)
-        qDebug() << config_modelList.at(i) << endl;
-
-    qDebug() << config_matrixFile.fileName() << endl;
-    */
     // initial the render and the externalImporter
     render = NULL;
-    exImporter = new ExternalImporter<MyMesh>();
+    exImporter = NULL;
+    imgManager = NULL;
+    // load the matrix file
+    loadInMatrix();
+}
+
+Handler::~Handler()
+{
+    clear();
 }
 
 
@@ -51,22 +56,58 @@ void Handler::rendering()
     glm::mat4 identity;
     for(int i=0;i<config_modelList.size();i++)
     {
+        MyMesh mesh;
+        fileName = config_baseDir.absolutePath().append("/").append(config_modelList.at(i));
+        std::cout << fileName.toStdString() << std::endl;
+        // load the mesh into memory
+        // and calculate the normals
+        exImporter = new ExternalImporter<MyMesh>();
+        loadInMesh(fileName,mesh);
+
         // set up the rendering environment
         render = new Render(mesh,identity,identity,identity);
         render->resize(QSize(800,800));
 
-        // I should check weather show the window is needed
-        // render->show();
-        fileName = config_baseDir.absolutePath().append(config_modelList.at(i));
+        // It is necessary to show the window first
+        render->show();
 
-        // load the mesh into memory
-        // and calculate the normals
-        loadInMesh(fileName);
+        // at the same time, create a folder named as the model containing the rendered images.
+        // the folder path is stored in imgManager->imgFolder
+        imgManager->setImgFolder(this->config_baseDir, this->config_modelList[i]);
 
+        exImporter->setUnformTransformation();
+        float scale = exImporter->scale;
+        glm::mat4 shiftTransform = exImporter->shiftTransform;
+        glm::mat4 uniform = glm::scale(glm::mat4(1.f), glm::vec3(scale)) * shiftTransform;
 
+        // render each viewpoints for the model
+        for(int index=0;index<imgManager->len;index++)
+        {
+            glm::mat4 uniform_tmp = imgManager->getModelMatrix(index) * uniform;
+            render->setMVP(uniform_tmp,
+                           imgManager->getViewMatrix(index),
+                           imgManager->getProjectiveMatrix(index));
+//            render->setMVP(imgManager->getModelMatrix(index),
+//                           imgManager->getViewMatrix(index),
+//                           imgManager->getProjectiveMatrix(index));
 
+            bool res = render->rendering();
+            assert(res);
 
+            render->storeRenderImage(imgManager->imgFolder,
+                                     imgManager->getImageName(index),
+                                     WIDTH_IMG,
+                                     HEIGHT_IMG);
 
+        }
+        flog << config_modelList.at(i).toStdString() << std::endl;
+
+        mesh.clear();
+//        render->close();
+        delete render;
+        render = NULL;
+        delete exImporter;
+        exImporter = NULL;
     }
 
 
@@ -79,7 +120,7 @@ void Handler::rendering()
  * @brief Handler::setFeatrueInit
  * @param mode set mode to determine which kind of features should be extracted.
  */
-void Handler::setFeatrueInit(int mode = 0)
+void Handler::setFeatrueInit(int mode)
 {
     std::vector< MeanCurvature< MyMesh >* > a;
     std::vector< GaussCurvature< MyMesh >* > b;
@@ -96,14 +137,36 @@ void Handler::setFeatrueInit(int mode = 0)
     }
     render->setAreaAllFaces();
 
+}
 
+void Handler::loadInMatrix()
+{
+    imgManager = new ImageManager(this->config_matrixFile.absoluteFilePath());
+}
 
+void Handler::clear()
+{
+    if(exImporter)
+    {
+        delete exImporter;
+        exImporter = NULL;
+    }
+    if(render)
+    {
+        delete render;
+        render = NULL;
+    }
+    if(imgManager)
+    {
+        delete imgManager;
+        imgManager = NULL;
+    }
 }
 
 
-void Handler::loadInMesh(QString fileName)
+void Handler::loadInMesh(QString fileName,MyMesh &mesh)
 {
-    if(!exImporter->read_mesh(mesh,fileName.toStdString().c_str()));
+    if(!exImporter->read_mesh(mesh,fileName.toStdString().c_str()))
     {
         std::cerr << "Error: Cannot read mesh from " << fileName.toStdString() << std::endl;
         return;
@@ -123,5 +186,5 @@ void Handler::loadInMesh(QString fileName)
         // dispose the face normals, as we don't need them anymore
         mesh.release_face_normals();
     }
-    std::cout << fileName.toStdString() << " loaded in done" << endl;
+    std::cout << fileName.toStdString() << " loaded in done!" << std::endl;
 }

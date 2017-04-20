@@ -1,5 +1,5 @@
 QT += core
-QT -= gui
+QT += gui
 QT += widgets
 
 CONFIG += c++11
@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     reverseface.cpp \
     render.cc \
     shader.cc \
-    trackball.cpp
+    trackball.cpp \
+    imagemanager.cpp
 
 HEADERS += \
     handler.h \
@@ -34,7 +35,8 @@ HEADERS += \
     meancurvature.hh \
     abstractfeature.hh \
     colormap.hh \
-    curvature.hh
+    curvature.hh \
+    imagemanager.h
 
 # OpenMesh
 INCLUDEPATH += /usr/local/include

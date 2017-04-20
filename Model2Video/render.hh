@@ -13,6 +13,7 @@
 #include "externalimporter.hh"
 #include <QString>
 #include <opencv.hpp>
+#include <QFileInfo>
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -45,11 +46,13 @@ public:
 
     QSize minimumSizeHint() const;
 
-    bool rendering(int count);
+    bool rendering(int count = 0);
 
     void showImage();
     // fileName is absolute name
     void storeImage(QString path,QString fileName,int width,int height);
+
+    void storeRenderImage(QString path, QString &fileName, int width, int height);
 
     double getArea(std::vector<GLuint> &indices,int p);
 

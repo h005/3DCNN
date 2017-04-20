@@ -13,6 +13,9 @@
 #include <iostream>
 #include <QDebug>
 #include "render.hh"
+#include <string>
+#include "imagemanager.h"
+#include <fstream>
 
 
 class Handler
@@ -49,11 +52,19 @@ public:
     ///
     Handler(QString configFileName, QString logFileName);
 
-    void loadInMesh(QString fileName);
+    ~Handler();
+
+    void loadInMesh(QString fileName, MyMesh &mesh);
 
     void rendering();
 
+private:
+
     void setFeatrueInit(int mode = 0);
+
+    void loadInMatrix();
+
+    void clear();
 
 private:
 
@@ -64,7 +75,12 @@ private:
     QFileInfo config_matrixFile;
     QFileInfo logFile;
     Render *render;
-    MyMesh mesh;
+    std::fstream flog;
+
+    int WIDTH_IMG = 800;
+    int HEIGHT_IMG = 600;
+
+    ImageManager *imgManager;
 };
 
 #endif // HANDLER_H

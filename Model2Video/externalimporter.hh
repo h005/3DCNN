@@ -20,6 +20,37 @@ class ExternalImporter
 {
 public:
 
+    ExternalImporter< MeshT >()
+    {
+        id = NULL;
+    }
+
+    ~ExternalImporter< MeshT >()
+    {
+        clear();
+    }
+
+
+    void clear()
+    {
+        for(int i=0;i<indiceMesh.size();i++)
+           std::vector<int>().swap(indiceMesh[i]);
+        std::vector< std::vector<int> >().swap(indiceMesh);
+
+        id = NULL;
+
+        std::vector<int>().swap(cateSet);
+
+        for(int i=0;i<cate.size();i++)
+            cate[i].clear();
+        std::vector< std::set<int> >().swap(cate);
+
+        std::vector<typename MeshT::Point>().swap(vertices);
+
+        std::vector<int>().swap(indices);
+    }
+
+
     /**
      * @brief read_mesh read in an external file, similar to OpenMesh::IO::read_mesh
      * @param mesh The mesh structure we read in
@@ -29,15 +60,22 @@ public:
      */
     bool read_mesh(MeshT &mesh, const char *path)
     {
+        // clear the memory first
+        clear();
+
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path,aiProcessPreset_TargetRealtime_Quality);
 
         if(!scene)
             return false;
 
+        std::cout << "mesh loaded done" << std::endl;
+
         int count = 0;
 
         getPointFace_h005(scene,scene->mRootNode,glm::mat4(),vertices,indices,count);
+
+        std::cout << "get Point Face done" << std::endl;
 
         // convert the faces without the same order with others
         // and remove the faces share the same vertex
@@ -45,10 +83,13 @@ public:
 
         id = reverse->reverseFace(indices,cateSet,cate);
 
+        std::cout << "reverse done" << std::endl;
+
         buildMesh_h005(vertices,indices,mesh);
 
         std::cout<<"Assimp Importer: "<<count<<" Meshes Loaded."<<std::endl;
 
+        delete reverse;
         return true;
     }
 
@@ -190,6 +231,41 @@ public:
 
     }
 
+    void setUnformTransformation()
+    {
+        glm::vec3 scene_min = glm::vec3(1e10, 1e10, 1e10);
+        glm::vec3 scene_max = glm::vec3(-1e10, -1e10, -1e10);
+        for(int i=0;i<vertices.size();i++)
+        {
+            if (vertices[i][0] < scene_min.x)
+                scene_min.x = vertices[i][0];
+            if (vertices[i][0] > scene_max.x)
+                scene_max.x = vertices[i][0];
+
+            if (vertices[i][1] < scene_min.y)
+                scene_min.y = vertices[i][1];
+            if (vertices[i][1] > scene_max.y)
+                scene_max.y = vertices[i][1];
+
+            if (vertices[i][2] < scene_min.z)
+                scene_min.z = vertices[i][2];
+            if (vertices[i][2] > scene_max.z)
+                scene_max.z = vertices[i][2];
+        }
+        float tmp = -1e10;
+        tmp = std::max<float>(scene_max.x - scene_min.x, tmp);
+        tmp = std::max<float>(scene_max.y - scene_min.y, tmp);
+        tmp = std::max<float>(scene_max.z - scene_min.z, tmp);
+        scale = 1.f / tmp;
+
+        glm::vec3 scene_center;
+        scene_center.x = (scene_min.x + scene_max.x) / 2.f;
+        scene_center.y = (scene_min.y + scene_max.y) / 2.f;
+        scene_center.z = (scene_min.z + scene_max.z) / 2.f;
+        shiftTransform = glm::translate(glm::mat4(1.f), glm::vec3(-scene_center.x, -scene_center.y, -scene_center.z));
+    }
+
+
 private:
     static void recursive_create(const aiScene *sc,
                                  const aiNode *nd,
@@ -264,16 +340,19 @@ private:
                         std::vector<int> &indices,
                         MeshT &mesh)
     {
-        printf("buildMesh_h005 vertices size %d\n",vertices.size());
-        printf("buildMesh_h005 indices size %d\n",indices.size());
+//        printf("buildMesh_h005 vertices size %d\n",vertices.size());
+//        printf("buildMesh_h005 indices size %d\n",indices.size());
+
+        // set the scale and translation parameters here
         std::vector<typename MeshT::VertexHandle> vHandle;
         for(int i=0;i<vertices.size();i++)
             vHandle.push_back(mesh.add_vertex(vertices[i]));
+
         std::vector<MyMesh::VertexHandle> face_vhandles;
-        std::cout<<"buildMesh_h005...indices size "<<indices.size()<<std::endl;
+//        std::cout<<"buildMesh_h005...indices size "<<indices.size()<<std::endl;
         for(int i=0;i<indices.size();i+=3)
         {
-            printf("buildMesh_h005 face %d %d %d %d\n",i,indices[i],indices[i+1],indices[i+2]);
+//            printf("buildMesh_h005 face %d %d %d %d\n",i,indices[i],indices[i+1],indices[i+2]);
             face_vhandles.clear();
             face_vhandles.push_back(vHandle[indices[i]]);
             face_vhandles.push_back(vHandle[indices[i+1]]);
@@ -372,8 +451,6 @@ private:
         }
     }
 
-
-
     // 可能会有很多个mesh，存储每个mesh中face的indices
     std::vector< std::vector<int> > indiceMesh;
     // 并查集合并之后的结果
@@ -387,6 +464,11 @@ private:
     std::vector<typename MeshT::Point> vertices;
     // 面的索引
     std::vector<int> indices;
+
+public:
+    // scale to unit and move the bounding box center to the axis center
+    float scale;
+    glm::mat4 shiftTransform;
 
 };
 
