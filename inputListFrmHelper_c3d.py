@@ -5,11 +5,12 @@ import os;
 
 def getModelList():
 	model = []
-	basePath = "/home/hejw005/Documents/3dcnn/data/ModelNet40/"
+	basePath = "/home/h005/Documents/3dcnn/data/ModelNetMini"
 	for root, dirs, files in os.walk(basePath, topdown=True):
 		for name in files:
 			if(name[-4:] != '.jpg'):
-				model.append(root.split(basePath)[1] + '/' + name)
+				print root.split(basePath)
+				model.append(root.split(basePath)[1] + '/' + name[:-4] + '/')
 
 	print 'extract Model list done'
 
@@ -17,33 +18,14 @@ def getModelList():
 
 	return modelSorted
 
-
-
-
-
-
 basePath = '/home/hejw005/Documents/3dcnn/data/ModelNet40'
 
 inputListFrmName = 'input_list_frm_model40.txt'
 
-# load in the modelList
-modelListFile = 'model.list'
+myModelList = getModelList()
 
-with open(modelListFile) as f:
-	modelList = f.readlines()
-
-modelList = [x.strip() for x in modelList]
-
-
-modelList = getModelList()
-
-# for eleVec in modelList:
-# 	print len(eleVec)
-# 	break
-# 	for ele in eleVec:
-# 		print ele
-# 		break
-# 	break
+for ele in myModelList:
+	print basePath + ele
 
 
 # generate the input frame file
