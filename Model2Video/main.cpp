@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 //    QSurfaceFormat::setDefaultFormat(fmt);
 
     Handler *handler = new Handler("/home/hejw005/Documents/3dcnn/code/test.ini",
-                                   "/home/hejw005/Documents/3dcnn/code/model2videoAirplane.log");
+                                   "/home/hejw005/Documents/3dcnn/code/model2bathtub.log");
 
     handler->rendering();
 

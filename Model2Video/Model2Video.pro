@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     render.cc \
     shader.cc \
     trackball.cpp \
-    imagemanager.cpp
+    imagemanager.cpp \
+    modellistmanager.cpp
 
 HEADERS += \
     handler.h \
@@ -36,7 +37,8 @@ HEADERS += \
     abstractfeature.hh \
     colormap.hh \
     curvature.hh \
-    imagemanager.h
+    imagemanager.h \
+    modellistmanager.h
 
 # OpenMesh
 INCLUDEPATH += /usr/local/include

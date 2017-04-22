@@ -16,7 +16,7 @@
 #include <string>
 #include "imagemanager.h"
 #include <fstream>
-
+#include <modellistmanager.h>
 
 class Handler
 {
@@ -33,7 +33,14 @@ public:
         /// baseDir=%your path%
         ///
         /// [model]
-        /// model="yourmodel1 yourmodel2 yourmodel3 ... yourmodeln"; split with space ' '
+        /// model=modelListFile.mlt
+        /// // the model list file, contains the model relative path (corresponding to baseDir), each model occupy one line
+        ///     .mlt file conatins the modellist should be converted
+        ///
+        ///     model1.off
+        ///     model2.off
+        ///     ...
+        ///     modeln.off
         ///
         /// [matrix]
         /// matrixFile=%your matrix%.matrix
@@ -80,6 +87,7 @@ private:
     int WIDTH_IMG = 800;
     int HEIGHT_IMG = 600;
 
+    ModelListManager *modelListManager;
     ImageManager *imgManager;
 };
 

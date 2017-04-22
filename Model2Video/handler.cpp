@@ -15,14 +15,17 @@ Handler::Handler(QString configFileName, QString logFileName)
 
     // read in the model list
     QString modelsString = configIni.value("model/model").toString();
-    config_modelList = modelsString.split(' ', QString::SkipEmptyParts);
+    modelListManager = new ModelListManager(modelsString);
+    config_modelList.clear();
+    modelListManager->getModelList(config_modelList);
 
     // read in the matrix file
     config_matrixFile = QFileInfo(configIni.value("matrix/matrixFile").toString());
 
     QFileInfo logFile(logFileName);
     // if the file does not exist
-    if (!logFile.exists())
+//    if (!logFile.exists())
+    if(logFileName == "")
     {
         // create the file as time.log
         QString tmpLogFileName = QDateTime::currentDateTime().toString();
