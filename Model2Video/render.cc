@@ -210,8 +210,25 @@ bool Render::rendering(int count)
     glm::mat4 modelViewMatrix = getModelViewMatrix();
 
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
-    glm::vec4 lightPos0 = glm::inverse(m_view) * glm::vec4(4,4,4,1);
+//    glm::vec4 lightPos0 = glm::inverse(m_view) * glm::vec4(4,4,4,1);
+    glm::vec4 lightPos0 = glm::inverse(m_view) * glm::vec4(0,0,6,1);
     glm::vec3 lightPos = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
+
+    // light source 1
+    lightPos0 = glm::inverse(m_view) * glm::vec4(6,6,2,1);
+    glm::vec3 lightPos1 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
+
+    // light source 2
+    lightPos0 = glm::inverse(m_view) * glm::vec4(-6,6,2,1);
+    glm::vec3 lightPos2 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
+
+    // light source 3
+    lightPos0 = glm::inverse(m_view) * glm::vec4(-6,-6,2,1);
+    glm::vec3 lightPos3 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
+
+    // light source 4
+    lightPos0 = glm::inverse(m_view) * glm::vec4(6,-6,2,1);
+    glm::vec3 lightPos4 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
 
     glm::mat4 MVP = m_proj * modelViewMatrix;
 
@@ -222,12 +239,20 @@ bool Render::rendering(int count)
     GLuint vID = glGetUniformLocation(m_programID,"V");
     GLuint nID = glGetUniformLocation(m_programID,"normalMatrix");
     GLuint lightID = glGetUniformLocation(m_programID,"LightPosition_worldspace");
+    GLuint lightID1 = glGetUniformLocation(m_programID,"LightPosition_worldspace1");
+    GLuint lightID2 = glGetUniformLocation(m_programID,"LightPosition_worldspace2");
+    GLuint lightID3 = glGetUniformLocation(m_programID,"LightPosition_worldspace3");
+    GLuint lightID4 = glGetUniformLocation(m_programID,"LightPosition_worldspace4");
 
     glUniformMatrix4fv(mvpID, 1, GL_FALSE, glm::value_ptr(MVP));
     glUniformMatrix4fv(mID, 1, GL_FALSE, glm::value_ptr(m_model));
     glUniformMatrix4fv(vID, 1, GL_FALSE, glm::value_ptr(m_view));
     glUniformMatrix4fv(nID, 1, GL_FALSE, glm::value_ptr(normalMatrix));
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(lightID1, lightPos1.x, lightPos1.y, lightPos1.z);
+    glUniform3f(lightID2, lightPos2.x, lightPos2.y, lightPos2.z);
+    glUniform3f(lightID3, lightPos3.x, lightPos3.y, lightPos3.z);
+    glUniform3f(lightID4, lightPos4.x, lightPos4.y, lightPos4.z);
 
     m_helper.draw();
     doneCurrent();

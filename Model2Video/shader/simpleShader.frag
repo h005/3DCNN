@@ -5,6 +5,10 @@ in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
+in vec3 LightDirection_cameraspace1;
+in vec3 LightDirection_cameraspace2;
+in vec3 LightDirection_cameraspace3;
+in vec3 LightDirection_cameraspace4;
 
 // Ouput data
 out vec3 color;
@@ -12,21 +16,34 @@ out vec3 color;
 // Values that stay constant for the whole mesh.
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
+uniform vec3 LightPosition_worldspace1;
+uniform vec3 LightPosition_worldspace2;
+uniform vec3 LightPosition_worldspace3;
+uniform vec3 LightPosition_worldspace4;
 
 void main(){
 
         // Light emission properties
         // You probably want to put them as uniforms
         vec3 LightColor = vec3(1,1,1);
-        float LightPower = 50.f;
+        float LightPower = 30.f;
+        float LightPower1 = 30.f;
+        float LightPower2 = 30.f;
+        float LightPower3 = 30.f;
+        float LightPower4 = 30.f;
 
         // Material properties
         vec3 MaterialDiffuseColor = vec3(0.752);
-        vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+//        vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+//        vec3 MaterialAmbientColor = vec3(1.0,1.0,1.0) * MaterialDiffuseColor;
         vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
         // Distance to the light
         float distance = length( LightPosition_worldspace - Position_worldspace );
+        float distance1 = length( LightPosition_worldspace1 - Position_worldspace );
+        float distance2 = length( LightPosition_worldspace2 - Position_worldspace );
+        float distance3 = length( LightPosition_worldspace3 - Position_worldspace );
+        float distance4 = length( LightPosition_worldspace4 - Position_worldspace );
 
         // Normal of the computed fragment, in camera space
         vec3 n = normalize( Normal_cameraspace );
@@ -38,6 +55,18 @@ void main(){
         //  - light is perpendicular to the triangle -> 0
         //  - light is behind the triangle -> 0
         float cosTheta = clamp( dot( n,l ), 0,1 );
+
+        vec3 l1 = normalize( LightDirection_cameraspace1 );
+        float cosTheta1 = clamp( dot( n,l1 ), 0,1 );
+
+        vec3 l2 = normalize( LightDirection_cameraspace2 );
+        float cosTheta2 = clamp( dot( n,l2 ), 0,1 );
+
+        vec3 l3 = normalize( LightDirection_cameraspace3 );
+        float cosTheta3 = clamp( dot( n,l3 ), 0,1 );
+
+        vec3 l4 = normalize( LightDirection_cameraspace4 );
+        float cosTheta4 = clamp( dot( n,l4 ), 0,1 );
 
         // Eye vector (towards the camera)
         vec3 E = normalize(EyeDirection_cameraspace);
@@ -51,7 +80,12 @@ void main(){
 
         color =
                 // Diffuse : "color" of the object
-                MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance);
+//                 MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance);
+                 MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance)
+                +MaterialDiffuseColor * LightColor * LightPower1 * cosTheta1 / (distance1*distance1)
+                +MaterialDiffuseColor * LightColor * LightPower2 * cosTheta2 / (distance2*distance2)
+                +MaterialDiffuseColor * LightColor * LightPower3 * cosTheta3 / (distance3*distance3)
+                +MaterialDiffuseColor * LightColor * LightPower4 * cosTheta4 / (distance4*distance4);
 
         //color = vec3(0.752);
 

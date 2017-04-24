@@ -103,3 +103,4 @@ LIBS += /usr/local/lib/libopencv_aruco.so \
         /usr/local/lib/libopencv_xobjdetect.so \
         /usr/local/lib/libopencv_xphoto.so
 
+
