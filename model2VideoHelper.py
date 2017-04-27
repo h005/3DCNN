@@ -18,6 +18,6 @@ print 'done'
 
 modelSorted = sorted(model)
 
-# for ele in modelSorted:
-# 	print ele
+for ele in modelSorted:
+	print ele
 

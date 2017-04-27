@@ -218,7 +218,7 @@ bool Render::rendering(int count)
     lightPos0 = glm::inverse(m_view) * glm::vec4(6,6,2,1);
     glm::vec3 lightPos1 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
 
-    // light source 2
+    // light  source 2
     lightPos0 = glm::inverse(m_view) * glm::vec4(-6,6,2,1);
     glm::vec3 lightPos2 = glm::vec3(lightPos0.x,lightPos0.y,lightPos0.z);
 
