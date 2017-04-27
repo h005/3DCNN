@@ -83,13 +83,31 @@ with open(bfl3d) as f:
 modelList = [x.strip() for x in modelList]
 modelList = sorted(modelList)
 
-print modelList
+# print modelList
+
+# mkdir for the different category of the features
+# os.mkdir()
 
 # extract the binary feature files with the suffix of the feaCate
 for cate in feaCate:
-	for eleFea in modelList:
-		if eleFea[-5:] == feaCate:
-			myModelList.append(elefea)
+	for tCate in train_test:
+		myModelList = []
+		for eleFea in modelList:
+			if eleFea[-5:] == cate:
+				# this ele is the category of cate
+				# such as 
+				# spList = ['airplane_', '_airplane_0627_1.fc6-1']
+				spList = eleFea.split(tCate)
+				if len(spList) == 2:
+					myModelList.append(eleFea)
+		for ele in myModelList:
+			print ele
+		break
+	break
+
+
+
+# train_testModelList = getTrainTestModelfeatureList(cateModelList,train_test)		
 
 
 
@@ -98,34 +116,33 @@ for cate in feaCate:
 
 
 
+# # extract the binary feature files with the suffix of feaCate
+# myModelList = []
+# for cate in feaCate:
+# 	if cate == feaCate[1]:
 
-# extract the binary feature files with the suffix of feaCate
-myModelList = []
-for cate in feaCate:
-	if cate == feaCate[1]:
+# for eleFea in modelList:
+# 	if eleFea[-5:] == feaCate:
+# 		myModelList.append(eleFea)
 
-for eleFea in modelList:
-	if eleFea[-5:] == feaCate:
-		myModelList.append(eleFea)
-
-print myModelList
+# print myModelList
 
 
-# read in the model list and put them into a dict
-modelListfile = '/home/hejw005/Documents/3dcnn/code/model.list'
-modelDict = getModelDict(modelListfile)
+# # read in the model list and put them into a dict
+# modelListfile = '/home/hejw005/Documents/3dcnn/code/model.list'
+# modelDict = getModelDict(modelListfile)
 
-# get the train and test model feature file list
-trainModelList = []
-testModelList = []
-for cate in train_test:
-	if cate == 'train':
-		trainModelList = getTrainTestModelfeatureList(myModelList,cate)
-	elif cate == 'test':
-		testModelList = getTrainTestModelfeatureList(myModelList,cate)
+# # get the train and test model feature file list
+# trainModelList = []
+# testModelList = []
+# for cate in train_test:
+# 	if cate == 'train':
+# 		trainModelList = getTrainTestModelfeatureList(myModelList,cate)
+# 	elif cate == 'test':
+# 		testModelList = getTrainTestModelfeatureList(myModelList,cate)
 
-print trainModelList
-print testModelList
+# print trainModelList
+# print testModelList
 	
 
 
