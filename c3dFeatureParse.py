@@ -7,24 +7,41 @@ import numpy as np
 feaCate = ['fc6-1','fc7-1']
 # train_test is one of the {'train','test'}
 train_test = ['train','test']
-# basePath
-basePath = '/home/hejw005/Documents/3dcnn/code'
-
+# feaLayer is one of the {'1','17'}
+feaLayer = ['1','17']
+# basePath for the binary features directory
+basePath = '/home/hejw005/Documents/3dcnn/data/ModelNet40_resC3D'
+# baseDir for the feature after parsing
+baseDir = '/home/hejw005/Documents/3dcnn/data/ModelNet40Fea'
 
 file = '/home/hejw005/Documents/3dcnn/C3D/C3D-v1.0/examples/c3d_feature_extraction/000001.fc6-1'
 feature_filename = '/home/hejw005/Documents/3dcnn/C3D/C3D-v1.0/examples/c3d_feature_extraction/000001_fc6-1.csv'
 
-def featureParse(fileList):
+# modelDict contains the model label
+def featureParse(fileList,modelDict,baseDir,cate,tCate,eleLayer):
 
-	f = open(file,"rb")
-
-	s = f.read()
-	f.close()
-
-	# print s
-
-	(n, c, l, h, w) = array.array("i", s[:20])
-	feature_vec = np.array(array.array("f", s[20:]))
+	featureFile = baseDir + '/' + cate + '/' + tCate + eleLayer + '.fea'
+	featureListFile = baseDir + '/' + cate + '/' + tCate + eleLayer + '.list'
+	feaFile = open(featureFile,'w')
+	feaListFile = open(featureListFile,'w')
+	print 'feature File ' + featureFile
+	print len(fileList)
+	for file in fileList:
+		print file
+		f = open(basePath + '/' + file,"rb")
+		s = f.read()
+		f.close()
+		(n, c, l, h, w) = array.array("i", s[:20])
+		feature_vec = np.array(array.array("f", s[20:]))
+		for ele in feature_vec:
+			feaFile.write('%.16f ' % ele)
+		# get the model label
+		# get the model name first
+		spModel = file.split(tCate)[0][:-1]
+		feaFile.write(str(modelDict[spModel]) + '\n')
+		feaListFile.write(file + '\n')
+	feaFile.close()
+	feaListFile.close()
 
 
 def getModelDict(modelListfile):
@@ -43,31 +60,6 @@ def getModelDict(modelListfile):
 	return modelDict
 
 
-def getTrainTestModelfeatureList(myModelList, train_test):
-	modelList = []
-	if train_test == 'train':
-		for ele in myModelList:
-			# this ele is the category of cate
-			# such as 
-			# spList = ['airplane_', '_airplane_0627_1.fc6-1']
-			spList = ele.split(train_test)
-			# this file belongs to the train folder
-			if len(spList) == 2:
-				# modelName = spList[0][:-1]
-				# print modelName
-				modelList.append(ele)
-	elif train_test == 'test':
-		for ele in myModelList:
-			spList = ele.split(train_test)
-			# this file belongs to the test folder
-			if len(spList) == 2:
-				modelList.append(ele)
-	return modelList
-
-	
-
-
-
 
 # binary feature list c3d feature file
 bfl3d = '/home/hejw005/Documents/3dcnn/data/ModelNet40_resC3D.list'
@@ -81,7 +73,16 @@ bfl3d = '/home/hejw005/Documents/3dcnn/data/ModelNet40_resC3D.list'
 with open(bfl3d) as f:
 	modelList = f.readlines()
 modelList = [x.strip() for x in modelList]
-modelList = sorted(modelList)
+modelList.sort()
+
+
+# read in the model list and put them into a dict
+modelListfile = '/home/hejw005/Documents/3dcnn/code/model.list'
+modelDict = getModelDict(modelListfile)
+
+print len(modelDict.keys())
+
+
 
 # print modelList
 
@@ -89,21 +90,30 @@ modelList = sorted(modelList)
 # os.mkdir()
 
 # extract the binary feature files with the suffix of the feaCate
-for cate in feaCate:
-	for tCate in train_test:
-		myModelList = []
-		for eleFea in modelList:
-			if eleFea[-5:] == cate:
-				# this ele is the category of cate
-				# such as 
-				# spList = ['airplane_', '_airplane_0627_1.fc6-1']
-				spList = eleFea.split(tCate)
-				if len(spList) == 2:
-					myModelList.append(eleFea)
-		for ele in myModelList:
-			print ele
-		break
-	break
+for cate in feaCate: # one of the {'fc6-1','fc7-1'}
+	for tCate in train_test: # one of the {'train','test'}
+		for eleLayer in feaLayer: # one of the {'1','17'}
+			myModelList = []
+			for eleFea in modelList:
+				if eleFea[-5:] == cate:
+					# this ele is the category of cate
+					# such as 
+					# spList = ['airplane_', '_airplane_0627_1.fc6-1']
+					spList = eleFea.split(tCate)
+					if len(spList) == 2:
+						# eleFea has the format of wardrobe_train_wardrobe_0045_1.fc6-1
+						# spListdot is wardrobe_train_wardrobe_0045_1
+						spListdot = eleFea.split('.')[0]
+						# spList_ is one of the feaLayer
+						spList_ = spListdot.split('_')[-1]
+
+						if spList_ == eleLayer:
+							myModelList.append(eleFea)
+			myModelList.sort()
+			featureParse(myModelList,modelDict,baseDir,cate,tCate,eleLayer)
+			print cate + ' ' + tCate + ' ' + eleLayer + ' extracted done' 
+
+
 
 
 
@@ -113,24 +123,6 @@ for cate in feaCate:
 
 
 
-
-
-
-# # extract the binary feature files with the suffix of feaCate
-# myModelList = []
-# for cate in feaCate:
-# 	if cate == feaCate[1]:
-
-# for eleFea in modelList:
-# 	if eleFea[-5:] == feaCate:
-# 		myModelList.append(eleFea)
-
-# print myModelList
-
-
-# # read in the model list and put them into a dict
-# modelListfile = '/home/hejw005/Documents/3dcnn/code/model.list'
-# modelDict = getModelDict(modelListfile)
 
 # # get the train and test model feature file list
 # trainModelList = []
