@@ -51,3 +51,15 @@ float angle_x = 2.0 * glm::pi<float>() / MAX_X_LEN;
 float angle_z = 2.0 * glm::pi<float>() / MAX_Z_LEN;
 '''
 
+---
+
+## Model rectify
+
+I have found that there are seven models have some problems with the format of **.off** file. They are
+**bathtub, desk, dresser, monitor, night_stand, sofa, and table**. And I created the python script of 
+**ModelNet40Rectiry.py** to rectify these model files.
+
+
+Useage:
+
+python ModelNet40Rectify.py
