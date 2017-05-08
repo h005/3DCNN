@@ -35,6 +35,10 @@ public:
 
     Render(MeshModel *in_mesh, glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection, QWidget *parent = 0);
 
+    Render(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection, QWidget *parent = 0);
+
+    void setMeshModel(MeshModel *in_mesh);
+
     void setMVP(glm::mat4 &model,glm::mat4 &view,glm::mat4 &proj);
 
     void setParameters();

@@ -60,6 +60,15 @@ void MeshModelHandler::generateFrames()
     QString fileName;
     // read in the mesh models
     glm::mat4 identity;
+
+    // setup the rendering environment
+//    render = new Render(meshContainer,identity,identity,identity);
+    render = new Render(identity,identity,identity);
+    render->resize(QSize(800,800));
+
+    // It is necessary to show the window first
+    render->show();
+
     for (int i=0;i<config_modelList.size(); i++)
     {
         // read in mesh
@@ -68,12 +77,7 @@ void MeshModelHandler::generateFrames()
         // load in the mesh and the mesh contains in the meshContainer
         meshContainer = new MeshModel(fileName,flog);
 
-        // setup the rendering environment
-        render = new Render(meshContainer,identity,identity,identity);
-        render->resize(QSize(800,800));
-
-        // It is necessary to show the window first
-        render->show();
+        render->setMeshModel(meshContainer);
 
         // at the same time, create a folder named as the model containing the rendered images
         // the folder path is stored in imgManager->imgFolder
@@ -104,10 +108,9 @@ void MeshModelHandler::generateFrames()
 
         delete meshContainer;
         meshContainer = NULL;
-        delete render;
-        render = NULL;
-
     }
+    delete render;
+    render = NULL;
     std::cout << "get frames done!" << std::endl;
 }
 

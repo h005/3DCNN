@@ -82,6 +82,33 @@ Render::Render(MeshModel *in_mesh,
     colorRenderBuffer = 0;
 }
 
+Render::Render(glm::mat4 &model,
+               glm::mat4 &view,
+               glm::mat4 &projection,
+               QWidget *parent)
+    : QOpenGLWidget(parent)
+{
+    m_mesh = NULL;
+    m_model = model;
+    m_view = view;
+    m_proj = projection;
+    m_transparent = QCoreApplication::arguments().contains(QStringLiteral("--transparent"));
+    if (m_transparent)
+        setAttribute(Qt::WA_TranslucentBackground);
+    p_img = NULL;
+    frameBufferId = 0;
+    depthRenderBuffer = 0;
+    colorRenderBuffer = 0;
+}
+
+void Render::setMeshModel(MeshModel *in_mesh)
+{
+    // load the mesh later, and we should fbo init here!
+    m_mesh = in_mesh;
+    this->cleanup();
+    this->initial();
+}
+
 void Render::setMVP(glm::mat4 &model, glm::mat4 &view, glm::mat4 &proj)
 {
     m_model = model;
@@ -148,6 +175,7 @@ void Render::paintGL()
 
 void Render::initial()
 {
+    makeCurrent();
     if(frameBufferId == 0)
         glGenFramebuffers(1, &frameBufferId);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
@@ -169,7 +197,9 @@ void Render::initial()
     GLuint vertexNormal_modelspaceID = glGetAttribLocation(m_programID, "vertexNormal_modelspace");
     GLuint vertexPosition_modelspaceID = glGetAttribLocation(m_programID,"vertexPosition_modelspace");
 
-    m_mesh->fbo_init(vertexPosition_modelspaceID,vertexNormal_modelspaceID);
+    if(m_mesh)
+        m_mesh->fbo_init(vertexPosition_modelspaceID,vertexNormal_modelspaceID);
+    doneCurrent();
 }
 
 void Render::resizeGL(int width, int height)
