@@ -15,13 +15,13 @@
  * the viewpints is determined with the camear's parameters, i.e. the model-view and
  * the projection matrix
  */
-class ImageManager
+class CameraParaManager
 {
 public:
-    ImageManager();
-    ~ImageManager();
-    ImageManager(std::string fileName);
-    ImageManager(QString fileName);
+    CameraParaManager();
+    ~CameraParaManager();
+    CameraParaManager(std::string fileName);
+    CameraParaManager(QString fileName);
     int len;
     glm::mat4 &getModelMatrix(int index);
     glm::mat4 &getViewMatrix(int index);
@@ -29,6 +29,7 @@ public:
     QString &getImageName(int index);
 
     void setImgFolder(QDir baseDir, QString model);
+    void getFeafileHandler(QString basePath, QString model, std::fstream &feaout);
     QString imgFolder;
 
 private:

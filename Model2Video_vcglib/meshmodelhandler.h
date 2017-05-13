@@ -17,7 +17,8 @@
 #include <fstream>
 #include "modellistmanager.h"
 #include "render.hh"
-#include "imagemanager.h"
+#include "cameraparamanager.h"
+#include "featureextractor.h"
 
 class MeshModelHandler
 {
@@ -49,6 +50,14 @@ public:
         ///     matrix file contains the viewpoints you want to render
         ///     the same format as in viewpoint recommendation (3DfeatureCheck)
         ///
+        /// [log]
+        /// FeaturelogFile=/home/h005/Documents/3dcnn/data/ModelNet40Feature
+        ///     // the "FeaturelogFile" is a folder, and this program will create a log file in this folder
+        ///     // named as the [date].log, such as
+        ///     // 20170510.log
+        ///     // the log file records the mesh model has been processed for extracting the features, correctly
+        ///
+        ///
     ///
     /// logFile .log file
     ///     log the viewpoints has been rendered, in case of the
@@ -68,11 +77,31 @@ public:
 
     void generateFrames();
 
+    void generateFeatures();
+
     void clear();
 
 private:
 
     void loadInMatrix();
+
+    void render_initialRender();
+
+    void render_loadInMesh(int modelIndex);
+
+    void render_loadInMesh(QString fileName);
+
+    void render_setModelViewProjectionMatrix(CameraParaManager *camParaManager, int index);
+
+    void render_setModelViewProjectionMatrix(glm::mat4 &modelMatrix,
+                                             glm::mat4 &viewMatrix,
+                                             glm::mat4 &projectionMatrix);
+
+    void folderExists(QString folder);
+
+    void clearMeshContainer();
+
+    void clearRender();
 
 private:
 
@@ -81,14 +110,19 @@ private:
     QFileInfo config_matrixFile;
     QFileInfo logFile;
     Render *render;
+    FeatureExtractor *featureExtractor;
     MeshModel *meshContainer;
-    std::fstream flog;
+    std::fstream modelLog;
+    QFileInfo featureLogFile;
+    QString featureFolder;
+    int modelFromId;
+    int modelToId;
 
     int WIDTH_IMG = 800;
     int HEIGHT_IMG = 600;
 
     ModelListManager *modelListManager;
-    ImageManager *imgManager;
+    CameraParaManager *camParaManager;
 };
 
 #endif // MESHMODELHANDLER_H

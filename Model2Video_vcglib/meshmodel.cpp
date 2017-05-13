@@ -12,8 +12,10 @@ MeshModel::MeshModel(QString modelPath, fstream &flog)
     vcg::tri::Clean<MyMesh>::RemoveUnreferencedVertex(mesh);
     vcg::tri::Clean<MyMesh>::RemoveZeroAreaFace(mesh);
     vcg::tri::UpdateTopology<MyMesh>::FaceFace(mesh);
-//    vcg::tri::Clean<MyMesh>::RemoveNonManifoldFace(mesh);
-//    vcg::tri::UpdateTopology<MyMesh>::FaceFace(mesh);
+    vcg::tri::Clean<MyMesh>::RemoveNonManifoldFace(mesh);
+    // get the mean and gaussian curvature
+    vcg::tri::UpdateCurvature<MyMesh>::MeanAndGaussian(mesh);
+    // get vertex normals
     vcg::tri::RequirePerVertexNormal(mesh);
     vcg::tri::UpdateNormal<MyMesh>::PerVertexNormalized(mesh);
     std::cout << "Input mesh vn: " << mesh.VN() << " fn: " << mesh.FN() << std::endl;
@@ -173,31 +175,10 @@ void MeshModel::cleanup()
     m_vboIndex = 0;
 }
 
-void MeshModel::getVerticesAndFaces_AddedByZwz(std::vector<GLfloat> &vertices, std::vector<GLuint> &indices)
+void MeshModel::getVerticesAndFaces_hejw005(std::vector<GLfloat> &vertices, std::vector<GLuint> &indices)
 {
-    /*
-    int index = 0;
-    std::map<typename MeshT::VertexHandle, int> dict;
-
-    typename MeshT::VertexIter v_it, v_end(m_mesh.vertices_end());
-    for (v_it = m_mesh.vertices_begin(); v_it != v_end; v_it++){
-        typename MeshT::Point pos = m_mesh.point(*v_it);
-        vertices.push_back(pos[0]);
-        vertices.push_back(pos[1]);
-        vertices.push_back(pos[2]);
-
-        dict[*v_it] = index;
-        index++;
-    }
-
-    typename MeshT::FaceIter f_it, f_end(m_mesh.faces_end());
-    for(f_it = m_mesh.faces_begin(); f_it != f_end; f_it++)
-    {
-        typename MeshT::FaceVertexIter fv_it(m_mesh.fv_iter(*f_it));
-        for (; fv_it; fv_it++)
-            indices.push_back(dict[*fv_it]);
-    }
-    */
+    vertices = this->vertices;
+    indices = this->faceIndices;
 }
 
 std::pair<float, glm::mat4> MeshModel::Uniformtransformation()
@@ -233,4 +214,54 @@ std::pair<float, glm::mat4> MeshModel::Uniformtransformation()
     scene_center.z = (scene_min.z + scene_max.z) / 2.f;
     glm::mat4 shiftTransform = glm::translate(glm::mat4(1.f), glm::vec3(-scene_center.x, -scene_center.y, -scene_center.z));
     return std::make_pair(scale,shiftTransform);
+}
+
+std::pair<double, double> MeshModel::getMeanGaussianCurvature(std::vector<bool> &isVertexVisiable)
+{
+    double meanCurvature = 0.0, gaussianCurvature = 0.0;
+    std::vector<MyVertex> &vs = mesh.vert;
+//    std::cout << "mean and gaussian curvature vs size " << vs.size() << std::endl;
+//    std::cout << "mean and gaussian curvature isVertexVisiable size " << isVertexVisiable.size() << std::endl;
+
+    // ref http://vcg.isti.cnr.it/vcglib/adjacency.html
+    // I can ref the VFIterator to visit the one-ring neighborhood of a vertex
+    // but now I have some more important thing to do, such as search for the better view track
+
+
+    double maxKh = -1e50;
+    double maxKg = -1e50;
+
+    for(size_t i = 0, index = 0; i < vs.size(); ++i, ++index)
+    {
+        if( vs[i].IsD() )
+            continue;
+        if( isVertexVisiable[index] )
+        {
+            maxKh = maxKh > vs[i].Kh() ? maxKh : vs[i].Kh();
+            maxKg = maxKg > vs[i].Kg() ? maxKg : vs[i].Kg();
+        }
+    }
+
+
+    for(size_t i = 0, index = 0; i < vs.size(); ++i, ++index)
+    {
+        if( vs[i].IsD() )
+            continue;
+        if( isVertexVisiable[index] )
+        {
+            meanCurvature += clamp(abs(vs[i].Kh()) / maxKh);
+            gaussianCurvature += clamp(abs(vs[i].Kg()) / maxKg);
+        }
+    }
+    return std::make_pair(meanCurvature, gaussianCurvature);
+}
+
+double MeshModel::clamp(double val, double min, double max)
+{
+    return std::max(std::min(val, max), min);
+}
+
+double MeshModel::abs(double val)
+{
+    return val > 0 ? val : -val;
 }

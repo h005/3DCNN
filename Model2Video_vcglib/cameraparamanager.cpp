@@ -1,59 +1,77 @@
-#include "imagemanager.h"
+#include "cameraparamanager.h"
 
-ImageManager::ImageManager()
+CameraParaManager::CameraParaManager()
 {
     fileName = "";
 }
 
-ImageManager::~ImageManager()
+CameraParaManager::~CameraParaManager()
 {
     clear();
 }
 
-ImageManager::ImageManager(std::string fileName)
+CameraParaManager::CameraParaManager(std::string fileName)
 {
     this->fileName = fileName;
     loadInCameraParameters();
 }
 
-ImageManager::ImageManager(QString fileName)
+CameraParaManager::CameraParaManager(QString fileName)
 {
     this->fileName = fileName.toStdString();
     loadInCameraParameters();
 }
 
-glm::mat4 &ImageManager::getModelMatrix(int index)
+glm::mat4 &CameraParaManager::getModelMatrix(int index)
 {
     return model_matrixList[index];
 }
 
-glm::mat4 &ImageManager::getViewMatrix(int index)
+glm::mat4 &CameraParaManager::getViewMatrix(int index)
 {
     return view_matrixList[index];
 }
 
-glm::mat4 &ImageManager::getProjectiveMatrix(int index)
+glm::mat4 &CameraParaManager::getProjectiveMatrix(int index)
 {
     return projection_matrixList[index];
 }
 
-QString &ImageManager::getImageName(int index)
+QString &CameraParaManager::getImageName(int index)
 {
     return img_names[index];
 }
 
-void ImageManager::setImgFolder(QDir baseDir, QString model)
+void CameraParaManager::setImgFolder(QDir baseDir, QString model)
 {
     QString tmpFile = baseDir.absolutePath().append("/").append(model);
     QFileInfo tmpFileInfo(tmpFile);
     imgFolder = tmpFileInfo.absolutePath();
     // is the folder does not exist, then create it
     QDir folder(imgFolder.append("/").append(tmpFileInfo.baseName()));
-    if(!folder.exists())
+    if(folder.exists())
+    {
+        folder.removeRecursively();
+        folder.mkpath(imgFolder);
+    }
+    else
         folder.mkpath(imgFolder);
 }
 
-void ImageManager::clear()
+void CameraParaManager::getFeafileHandler(QString basePath, QString model, std::fstream &feaout)
+{
+    model.replace('/','_');
+    std::cout << model.toStdString() << std::endl;
+    // remove the suffix
+    int pos = model.lastIndexOf('.');
+    model = model.left(pos);
+    model = model + ".fea";
+    QString feaoutFile = basePath + '/' + model;
+    feaout.open(feaoutFile.toStdString(), std::fstream::out);
+    return;
+}
+
+void CameraParaManager::clear()
 {
     img_names.clear();
     model_matrixList.clear();
@@ -61,7 +79,7 @@ void ImageManager::clear()
     projection_matrixList.clear();
 }
 
-void ImageManager::loadInCameraParameters()
+void CameraParaManager::loadInCameraParameters()
 {
 
     std::fstream fstream(fileName, std::fstream::in);
