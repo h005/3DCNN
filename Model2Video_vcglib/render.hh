@@ -67,6 +67,10 @@ public:
 
     double getArea(std::vector<GLuint> &indices,int p);
 
+    // this function computes the mean curvature of each visiable vertex
+    // call the function of setParameters() before call this function
+    std::pair<double,double> getMeanGaussianCurvature();
+
     std::pair<float, glm::mat4> Uniformtransformation();
 
     ~Render();

@@ -3,6 +3,7 @@
 
 #include <vcg/complex/complex.h>
 #include <wrap/io_trimesh/import.h>
+#include <vcg/complex/algorithms/update/curvature.h>
 #include <QString>
 
 #include <assert.h>
@@ -27,7 +28,7 @@ struct MyUsedTypes: public vcg::UsedTypes<vcg::Use<MyVertex>::AsVertexType,
                                           vcg::Use<MyEdge>::AsEdgeType,
                                           vcg::Use<MyFace>::AsFaceType>{};
 
-class MyVertex  : public vcg::Vertex< MyUsedTypes, vcg::vertex::Coord3f, vcg::vertex::Normal3f, vcg::vertex::BitFlags  >{};
+class MyVertex  : public vcg::Vertex< MyUsedTypes, vcg::vertex::Coord3f, vcg::vertex::Normal3f, vcg::vertex::BitFlags, vcg::vertex::Curvaturef>{};
 class MyFace    : public vcg::Face<   MyUsedTypes, vcg::face::FFAdj,  vcg::face::VertexRef, vcg::face::BitFlags, vcg::face::Mark > {};
 class MyEdge    : public vcg::Edge<   MyUsedTypes> {};
 
@@ -55,9 +56,11 @@ public:
     // this function is used for clear the opengl buffers
     void cleanup();
 
-    void getVerticesAndFaces_AddedByZwz(std::vector<GLfloat> &vertices, std::vector<GLuint> &indices);
+    void getVerticesAndFaces_hejw005(std::vector<GLfloat> &vertices, std::vector<GLuint> &indices);
 
     std::pair<float, glm::mat4> Uniformtransformation();
+
+    std::pair<double, double> getMeanGaussianCurvature(std::vector<bool> &isVertexVisiable);
 
     MyMesh mesh;
 
@@ -69,6 +72,9 @@ private:
     GLuint m_vao = 0, m_vboVertex = 0, m_vboIndex = 0, m_vboVertexNormal = 0;
     int numsToDraw;
     bool m_isInited;
+
+    double clamp(double val, double min = 0.0, double max = 1.0);
+    double abs(double val);
 };
 
 #endif // MESHMODEL_H

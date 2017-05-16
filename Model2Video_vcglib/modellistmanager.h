@@ -14,7 +14,7 @@ public:
     void getModelList(QStringList& modelList);
 
 private:
-    std::fstream fmlt;
+    std::fstream fileHandlerFormlt;
 };
 
 #endif // MODELLISTMANAGER_H

@@ -7,7 +7,7 @@
 QT       += core gui widgets
 
 
-#CONFIG += console
+CONFIG += console
 CONFIG -= app_bundle
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -31,9 +31,12 @@ SOURCES += main.cpp\
     meshmodelhandler.cpp \
     modellistmanager.cpp \
     render.cc \
-    imagemanager.cpp \
     shader.cc \
-    test.cpp
+    test.cpp \
+    featureextractor.cpp \
+    cameraparamanager.cpp \
+    dirmanager.cpp \
+    seamtrajectory.cpp
 
 
 HEADERS  += meshmodel.h \
@@ -41,9 +44,12 @@ HEADERS  += meshmodel.h \
     meshmodelhandler.h \
     modellistmanager.h \
     render.hh \
-    imagemanager.h \
     shader.hh \
-    test.h
+    test.h \
+    featureextractor.h \
+    cameraparamanager.h \
+    dirmanager.h \
+    seamtrajectory.h
 
 # glew
 LIBS += -lGLEW -lGLU -lGL
@@ -82,7 +88,7 @@ LIBS += /usr/local/lib/libopencv_aruco.so \
         /usr/local/lib/libopencv_reg.so \
         /usr/local/lib/libopencv_rgbd.so \
         /usr/local/lib/libopencv_saliency.so \
-        /usr/local/lib/libopencv_sfm.so \
+#        /usr/local/lib/libopencv_sfm.so \
         /usr/local/lib/libopencv_shape.so \
         /usr/local/lib/libopencv_stereo.so \
         /usr/local/lib/libopencv_stitching.so \

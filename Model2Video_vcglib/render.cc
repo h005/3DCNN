@@ -519,6 +519,11 @@ double Render::getArea(std::vector<GLuint> &indices,int p)
     return area;
 }
 
+std::pair<double, double> Render::getMeanGaussianCurvature()
+{
+    return m_mesh->getMeanGaussianCurvature(this->p_isVertexVisible);
+}
+
 std::pair<float, glm::mat4> Render::Uniformtransformation()
 {
     return m_mesh->Uniformtransformation();
@@ -539,7 +544,8 @@ void Render::setParameters()
         p_img = NULL;
     }
 
-    m_mesh->getVerticesAndFaces_AddedByZwz(p_vertices,indices);
+//    m_mesh->getVerticesAndFaces_AddedByZwz(p_vertices,indices);
+    m_mesh->getVerticesAndFaces_hejw005(p_vertices, indices);
 
     makeCurrent();
 
@@ -660,7 +666,7 @@ void Render::setAreaAllFaces()
     std::vector<GLuint> indices;
     p_vertices.clear();
 
-    m_mesh->getVerticesAndFaces_AddedByZwz(p_vertices,indices);
+    m_mesh->getVerticesAndFaces_hejw005(p_vertices, indices);
 
     areaAllFaces = 0.0;
 

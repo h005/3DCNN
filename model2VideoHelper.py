@@ -1,8 +1,8 @@
 import os
 model = []
 # modelCategory = 'bed'
-# basePath = "/home/hejw005/Documents/3dcnn/data/ModelNet40/"+modelCategory
-basePath = "/home/hejw005/Documents/3dcnn/data/ModelNet40/"
+# basePath = "/home/hejw005/Documents/3dcnn/data/ModelNet40/"
+basePath='/home/h005/Documents/3dcnn/data/ModelNetMini'
 for root, dirs, files in os.walk(basePath, topdown=True):
     for name in files:
         # model = model + ' '.join(root).join(name)
@@ -16,17 +16,16 @@ for root, dirs, files in os.walk(basePath, topdown=True):
 #    for name in dirs:
 #        print(os.path.join(root, name))
 
+mltFile = 'miniModel.mlt'
+mltfileHandler = open(mltFile,'w')
 
-
-# mltFile = 'model.mlt'
-# mltfileHandler = open(mltFile,'w')
 
 modelSorted = sorted(model)
 print len(modelSorted)
 
-# for ele in modelSorted:
-# 	print ele
-# 	mltfileHandler.write(ele + '\n')
+for ele in modelSorted:
+	print ele
+	mltfileHandler.write(ele[1:] + '\n')
 
 # mltfileHandler.close()
 print 'done'
