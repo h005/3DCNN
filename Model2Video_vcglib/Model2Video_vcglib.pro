@@ -7,7 +7,7 @@
 QT       += core gui widgets
 
 
-#CONFIG += console
+CONFIG += console
 CONFIG -= app_bundle
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -34,7 +34,9 @@ SOURCES += main.cpp\
     shader.cc \
     test.cpp \
     featureextractor.cpp \
-    cameraparamanager.cpp
+    cameraparamanager.cpp \
+    dirmanager.cpp \
+    seamtrajectory.cpp
 
 
 HEADERS  += meshmodel.h \
@@ -45,7 +47,9 @@ HEADERS  += meshmodel.h \
     shader.hh \
     test.h \
     featureextractor.h \
-    cameraparamanager.h
+    cameraparamanager.h \
+    dirmanager.h \
+    seamtrajectory.h
 
 # glew
 LIBS += -lGLEW -lGLU -lGL

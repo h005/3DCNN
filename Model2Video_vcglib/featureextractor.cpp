@@ -1,11 +1,21 @@
 #include "featureextractor.h"
 
+FeatureExtractor::FeatureExtractor()
+{
+    this->render = NULL;
+    this->imgHeight = 600;
+    this->imgWidth = 800;
+
+    initFeaNameList();
+}
+
 FeatureExtractor::FeatureExtractor(Render *render)
 {
     this->render = render;
     this->imgHeight = 600;
     this->imgWidth = 800;
 
+    initFeaNameList();
 }
 
 FeatureExtractor::~FeatureExtractor()
@@ -20,49 +30,62 @@ FeatureExtractor::~FeatureExtractor()
     featureContainer.clear();
 }
 
-void FeatureExtractor::printFeatures(std::fstream &feaOut, featureType id)
+QString FeatureExtractor::getFeaName(FeatureExtractor::featureType id)
 {
-    switch(id)
-    {
-    case featureType::ProjectArea:
-        feaOut << "ProjectArea" << std::endl;
-        break;
-    case featureType::VisSurfaceArea:
-        feaOut << "VisSurfaceArea" << std::endl;
-        break;
-    case featureType::ViewpointEntropy:
-        feaOut << "ViewpointEntropy" << std::endl;
-        break;
-    case featureType::SilhouetteLength:
-        feaOut << "SilhouetteLength" << std::endl;
-        break;
-    case featureType::SilhouetteCurvature:
-        feaOut << "SilhouetteCurvature" << std::endl;
-        break;
-    case featureType::SilhouetteCurvatureExtreme:
-        feaOut << "SilhouetteCurvatureExtreme" << std::endl;
-        break;
-    case featureType::MaxDepth:
-        feaOut << "MaxDepth" << std::endl;
-        break;
-    case featureType::DepthDistribute:
-        feaOut << "DepthDistribute" << std::endl;
-        break;
-    case featureType::MeanCurvature:
-        feaOut << "MeanCurvatue" << std::endl;
-        break;
-    case featureType::GaussianCurvature:
-        feaOut << "GaussianCurvature" << std::endl;
-        break;
-    case featureType::AbovePreference:
-        feaOut << "AbovePreference" << std::endl;
-        break;
-    }
+    return feaNameList[id];
+}
+
+void FeatureExtractor::printFeatures(std::fstream &feaOut, featureType id)
+{    
+    feaOut << feaNameList[id].toStdString() << std::endl;
 
     for( int i = 0; i < featureContainer[id].size(); i++)
         feaOut << featureContainer[id][i] << " ";
     feaOut << std::endl;
 
+}
+
+void FeatureExtractor::parseToImg(QString basePath,
+                                  QString model,
+                                  FeatureExtractor::featureType id)
+{
+    model.replace('/','_');
+//    std::cout << model.toStdString() << std::endl;
+    int pos = model.lastIndexOf('.');
+    model = model.left(pos);
+    model = model + "_" + feaNameList[id];
+    QString heatMapName = basePath + '/' + model + ".jpg";
+    QString energyMapName = basePath + '/' + model + "_e.jpg";
+    parseToImg(featureContainer[id], heatMapName, energyMapName);
+}
+
+void FeatureExtractor::setFeatures()
+{
+    this->initExtractor();
+    this->setProjectArea();
+    this->setVisSurfaceArea();
+    this->setViewpointEntropy();
+    this->setSilhouetteLength();
+    this->setSilhouetteCE();
+    this->setMaxDepth();
+    this->setDepthDistribute();
+    this->setMeanGaussianCurvature();
+    this->setAbovePreference();
+}
+
+void FeatureExtractor::printFeatures(std::fstream &feaOut)
+{
+    this->printFeatures(feaOut, this->featureType::ProjectArea);
+    this->printFeatures(feaOut, this->featureType::VisSurfaceArea);
+    this->printFeatures(feaOut, this->featureType::ViewpointEntropy);
+    this->printFeatures(feaOut, this->featureType::SilhouetteLength);
+    this->printFeatures(feaOut, this->featureType::SilhouetteCurvature);
+    this->printFeatures(feaOut, this->featureType::SilhouetteCurvatureExtreme);
+    this->printFeatures(feaOut, this->featureType::MaxDepth);
+    this->printFeatures(feaOut, this->featureType::DepthDistribute);
+    this->printFeatures(feaOut, this->featureType::MeanCurvature);
+    this->printFeatures(feaOut, this->featureType::GaussianCurvature);
+    this->printFeatures(feaOut, this->featureType::AbovePreference);
 }
 
 void FeatureExtractor::initExtractor()
@@ -494,4 +517,42 @@ double FeatureExtractor::setAbovePreference(double theta)
     res = exp(-(theta - pi/8.0*3.0)*(theta - pi/8.0*3.0)
                           / pi/4.0*pi/4.0);
     return res;
+}
+
+void FeatureExtractor::parseToImg(std::vector<double> fea,
+                                  QString heatMapName,
+                                  QString energyMapName)
+{
+    int len = fea.size();
+    int NUM_PIX = sqrt((double)len);
+    assert(NUM_PIX * NUM_PIX == len);
+    double *imgData = fea.data();
+    cv::Mat image(cv::Size(NUM_PIX, NUM_PIX), CV_64FC1, imgData);
+
+    cv::normalize(image, image, 0, 255, cv::NORM_MINMAX, CV_64FC1, cv::Mat());
+
+    cv::resize(image, image, cv::Size(512,512));
+    image.convertTo(image, CV_8UC1);
+
+    cv::Mat colorImg;
+    cv::applyColorMap(image, colorImg, cv::COLORMAP_JET);
+    cv::imwrite(heatMapName.toStdString(), colorImg);
+    cv::imwrite(energyMapName.toStdString(), image);
+
+}
+
+void FeatureExtractor::initFeaNameList()
+{
+    feaNameList.clear();
+    feaNameList.push_back("ProjectArea");
+    feaNameList.push_back("VisSurfaceArea");
+    feaNameList.push_back("ViewpointEntropy");
+    feaNameList.push_back("SilhouetteLength");
+    feaNameList.push_back("SilhouetteCurvature");
+    feaNameList.push_back("SilhouetteCurvatureExtreme");
+    feaNameList.push_back("MaxDepth");
+    feaNameList.push_back("DepthDistribute");
+    feaNameList.push_back("MeanCurvatue");
+    feaNameList.push_back("GaussianCurvature");
+    feaNameList.push_back("AbovePreference");
 }

@@ -127,9 +127,10 @@ void MeshModelHandler::generateFeatures()
 
     render_initialRender();
 
+    std::cout << "OpenGL initial done" << std::endl;
+
     featureExtractor = new FeatureExtractor(render);
 
-//    for (int modelIndex=0; modelIndex < config_modelList.size(); modelIndex++)
     for (int modelIndex = modelFromId; modelIndex < modelToId; modelIndex++)
     {
         // load in mesh to the MeshContainer
@@ -163,39 +164,55 @@ void MeshModelHandler::generateFeatures()
                                      WIDTH_IMG,
                                      HEIGHT_IMG);
 
-            featureExtractor->initExtractor();
-            featureExtractor->setProjectArea();
-            featureExtractor->setVisSurfaceArea();
-            featureExtractor->setViewpointEntropy();
-            featureExtractor->setSilhouetteLength();
-            featureExtractor->setSilhouetteCE();
-            featureExtractor->setMaxDepth();
-            featureExtractor->setDepthDistribute();
-            featureExtractor->setMeanGaussianCurvature();
-            featureExtractor->setAbovePreference();
+            featureExtractor->setFeatures();
         }
 
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::ProjectArea);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::VisSurfaceArea);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::ViewpointEntropy);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::SilhouetteLength);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::SilhouetteCurvature);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::SilhouetteCurvatureExtreme);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::MaxDepth);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::DepthDistribute);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::MeanCurvature);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::GaussianCurvature);
-        featureExtractor->printFeatures(feaOut, featureExtractor->featureType::AbovePreference);
+        featureExtractor->printFeatures(feaOut);
+
+
+        // save the heatMap and the energyMap in to the folder the same as the .fea file
+        // and named as [model]_[attr].jpg and [model]_[attr]_e.jpg
+        featureExtractor->parseToImg(this->featureFolder,
+                                     this->config_modelList[modelIndex],
+                                     featureExtractor->featureType::ViewpointEntropy);
 
         feaOut.close();
 
         clearMeshContainer();
 
+        modelLog << modelIndex << " " << modelToId << std::endl;
     }
 
     clearRender();
 
     std::cout << "generate features done!" << std::endl;;
+}
+
+///
+/// \brief MeshModelHandler::generateTrajectoryWithSeam
+/// this function will generate the trajectory with seam
+/// and generate the [fileName].matrix file for each model
+/// where the [fileName] is the same as the [fileName] in fea file
+///
+void MeshModelHandler::generateTrajectoryWithSeam()
+{
+    featureExtractor = new FeatureExtractor();
+
+    QString feaName = featureExtractor->getFeaName(featureExtractor->featureType::ViewpointEntropy);
+
+    for (int modelIndex = modelFromId; modelIndex < modelToId; modelIndex++)
+    {
+        SeamTrajectory *seamTrajectory = new SeamTrajectory(this->featureFolder,
+                                                            this->config_modelList[modelIndex],
+                                                            feaName);
+        std::vector<uint> seam = seamTrajectory->findHorizontalMaxSeam();
+
+        seamTrajectory->generateTrajectoryMatrix(this->featureFolder,
+                                                 this->config_modelList[modelIndex],
+                                                 feaName,
+                                                 seam);
+
+    }
 }
 
 void MeshModelHandler::loadInMatrix()

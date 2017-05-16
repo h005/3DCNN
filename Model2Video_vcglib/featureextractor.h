@@ -26,11 +26,21 @@ public:
                     ENDenum};
 
 public:
+    FeatureExtractor();
+
     FeatureExtractor(Render *render);
 
     ~FeatureExtractor();
 
+    QString getFeaName(featureType id);
+
     void printFeatures(std::fstream &feaOut, featureType id);
+
+    void parseToImg(QString basePath, QString model, featureType id);
+
+    void setFeatures();
+
+    void printFeatures(std::fstream &feaOut);
 
     void initExtractor();
 
@@ -92,7 +102,15 @@ private:
 
     double setAbovePreference(double theta);
 
+    void parseToImg(std::vector<double> fea,
+                    QString heatMapName,
+                    QString energyMapName);
+
+    void initFeaNameList();
+
 //    QString feaFileName;
+//    QStringList feaNameList;
+    std::vector<QString> feaNameList;
     Render *render;
     cv::Mat image;
     int imgWidth,imgHeight;

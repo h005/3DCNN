@@ -19,6 +19,7 @@
 #include "render.hh"
 #include "cameraparamanager.h"
 #include "featureextractor.h"
+#include "seamtrajectory.h"
 
 class MeshModelHandler
 {
@@ -78,6 +79,8 @@ public:
     void generateFrames();
 
     void generateFeatures();
+
+    void generateTrajectoryWithSeam();
 
     void clear();
 

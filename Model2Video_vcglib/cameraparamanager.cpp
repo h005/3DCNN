@@ -71,6 +71,23 @@ void CameraParaManager::getFeafileHandler(QString basePath, QString model, std::
     return;
 }
 
+/*
+void CameraParaManager::getFeaImgPath(QString basePath,
+                                      QString model,
+                                      QString attr,
+                                      QString &heatMapPath,
+                                      QString &energyMapPath)
+{
+    model.replace('/','_');
+    int pos = model.lastIndexOf('.');
+    model = model.left(pos);
+    model = model + "_" + attr;
+    heatMapPath = basePath + '/' + model + ".jpg";
+    energyMapPath = basePath + '/' + model + "_e.jpg";
+}
+*/
+
+
 void CameraParaManager::clear()
 {
     img_names.clear();

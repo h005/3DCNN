@@ -30,12 +30,15 @@ public:
 
     void setImgFolder(QDir baseDir, QString model);
     void getFeafileHandler(QString basePath, QString model, std::fstream &feaout);
+
+//    void getFeaImgPath(QString basePath, QString model, QString attr, QString &heatMapPath, QString &energyMapPath);
+
     QString imgFolder;
 
 private:
     void clear();
 
-    // matrix filenames
+    // matrix filename, load the parameters from this file
     std::string fileName;
     // the picture name of each pictures will be rendered
     std::vector< QString > img_names;
