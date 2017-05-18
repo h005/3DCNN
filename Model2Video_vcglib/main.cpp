@@ -77,20 +77,20 @@ void batchParaParse(QString &configFile, QString &logFile)
     switch(batch)
     {
     case 0:
-        configFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch0.ini";
-        logFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch0.log";
+        configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch0.ini";
+        logFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch0.log";
         break;
     case 1:
-        configFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch1.ini";
-        logFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch1.log";
+        configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch1.ini";
+        logFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch1.log";
         break;
     case 2:
-        configFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch2.ini";
-        logFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch2.log";
+        configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch2.ini";
+        logFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch2.log";
         break;
     case 3:
-        configFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch3.ini";
-        logFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/miniBatch3.log";
+        configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch3.ini";
+        logFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch3.log";
         break;
     default:
         std::cout << "err input" << std::endl;

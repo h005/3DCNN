@@ -58,6 +58,8 @@ public:
 
     void getVerticesAndFaces_hejw005(std::vector<GLfloat> &vertices, std::vector<GLuint> &indices);
 
+    bool loadSuccessful();
+
     std::pair<float, glm::mat4> Uniformtransformation();
 
     std::pair<double, double> getMeanGaussianCurvature(std::vector<bool> &isVertexVisiable);
@@ -72,6 +74,8 @@ private:
     GLuint m_vao = 0, m_vboVertex = 0, m_vboIndex = 0, m_vboVertexNormal = 0;
     int numsToDraw;
     bool m_isInited;
+
+    bool loadFlag;
 
     double clamp(double val, double min = 0.0, double max = 1.0);
     double abs(double val);
