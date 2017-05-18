@@ -8,6 +8,8 @@ MeshModel::MeshModel(QString modelPath, fstream &flog)
         std::cout << "Error: reading model file " + modelPath.toStdString() << std::endl;
         flog << "Error: reading model file " + modelPath.toStdString() << std::endl;
 //        exit(0);
+        loadFlag = false;
+        return;
     }
     vcg::tri::Clean<MyMesh>::RemoveUnreferencedVertex(mesh);
     vcg::tri::Clean<MyMesh>::RemoveZeroAreaFace(mesh);
@@ -20,6 +22,7 @@ MeshModel::MeshModel(QString modelPath, fstream &flog)
     vcg::tri::UpdateNormal<MyMesh>::PerVertexNormalized(mesh);
     std::cout << "Input mesh vn: " << mesh.VN() << " fn: " << mesh.FN() << std::endl;
     std::cout << "Mesh has " << mesh.VN() << " verts and " << mesh.FN() << " faces" << std::endl;
+    loadFlag = true;
 // ref http://stackoverflow.com/questions/13041772/how-to-extract-vertex-coordinates-in-vcg-library
 }
 
@@ -179,6 +182,11 @@ void MeshModel::getVerticesAndFaces_hejw005(std::vector<GLfloat> &vertices, std:
 {
     vertices = this->vertices;
     indices = this->faceIndices;
+}
+
+bool MeshModel::loadSuccessful()
+{
+    return loadFlag;
 }
 
 std::pair<float, glm::mat4> MeshModel::Uniformtransformation()

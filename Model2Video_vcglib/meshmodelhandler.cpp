@@ -84,6 +84,9 @@ void MeshModelHandler::generateFrames()
         // load in the mesh and the mesh contains in the meshContainer
         meshContainer = new MeshModel(fileName,modelLog);
 
+        if(meshContainer->loadSuccessful())
+            continue;
+
         render->setMeshModel(meshContainer);
 
         // at the same time, create a folder named as the model containing the rendered images
@@ -134,7 +137,8 @@ void MeshModelHandler::generateFeatures()
     for (int modelIndex = modelFromId; modelIndex < modelToId; modelIndex++)
     {
         // load in mesh to the MeshContainer
-        render_loadInMesh(modelIndex);
+        if (!render_loadInMesh(modelIndex))
+            continue;
 
 //        // at the same time, create a folder named as the model containing the rendered images
 //        // the folder path is stored in imageManager->imgFolder
@@ -212,7 +216,11 @@ void MeshModelHandler::generateTrajectoryWithSeam()
                                                  feaName,
                                                  seam);
 
+        modelLog << modelIndex << " " << modelToId << std::endl;
+
     }
+
+    std::cout << "generate Trajectory done!" << std::endl;;
 }
 
 void MeshModelHandler::loadInMatrix()
@@ -220,21 +228,25 @@ void MeshModelHandler::loadInMatrix()
     camParaManager = new CameraParaManager(this->config_matrixFile.absoluteFilePath());
 }
 
-void MeshModelHandler::render_loadInMesh(int modelIndex)
+bool MeshModelHandler::render_loadInMesh(int modelIndex)
 {
     QString fileName = config_baseDir.absolutePath().append("/").append(config_modelList.at(modelIndex));
     std::cout << fileName.toStdString() << std::endl;
 
-    render_loadInMesh(fileName);
+    return render_loadInMesh(fileName);
 
 }
 
-void MeshModelHandler::render_loadInMesh(QString fileName)
+bool MeshModelHandler::render_loadInMesh(QString fileName)
 {
     // load in the mesh into the meshContainer
     meshContainer = new MeshModel(fileName, modelLog);
 
+    if(!meshContainer->loadSuccessful())
+        return false;
+
     render->setMeshModel( meshContainer );
+    return true;
 }
 
 void MeshModelHandler::render_setModelViewProjectionMatrix(CameraParaManager *imgManager,

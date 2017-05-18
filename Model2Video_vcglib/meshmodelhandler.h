@@ -90,9 +90,9 @@ private:
 
     void render_initialRender();
 
-    void render_loadInMesh(int modelIndex);
+    bool render_loadInMesh(int modelIndex);
 
-    void render_loadInMesh(QString fileName);
+    bool render_loadInMesh(QString fileName);
 
     void render_setModelViewProjectionMatrix(CameraParaManager *camParaManager, int index);
 

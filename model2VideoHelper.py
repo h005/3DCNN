@@ -10,7 +10,7 @@ for root, dirs, files in os.walk(basePath, topdown=True):
         # print name
         if(name[-4:] != '.jpg'):
         	model.append(root.split(basePath)[1] + '/' + name)
-        	# print root.split(basePath)[1] + '/' + name
+        	print root.split(basePath)[1] + '/' + name
 
 # print 'done'
 #    for name in dirs:
@@ -19,11 +19,13 @@ for root, dirs, files in os.walk(basePath, topdown=True):
 mltFile = 'miniModel.mlt'
 mltfileHandler = open(mltFile,'w')
 
+
 modelSorted = sorted(model)
+print len(modelSorted)
 
 for ele in modelSorted:
 	print ele
 	mltfileHandler.write(ele[1:] + '\n')
 
-mltfileHandler.close()
+# mltfileHandler.close()
 print 'done'
