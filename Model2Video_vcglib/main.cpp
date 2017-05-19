@@ -46,7 +46,8 @@ void programStart()
         {
             batchParaParse(configFile, logFile);
             meshHandler = new MeshModelHandler(configFile,logFile);
-            meshHandler->generateFrames();
+//            meshHandler->generateFrames();
+            meshHandler->generateFramesByTrack();
             break;
         }
         else if( !operation.compare("-h") )
@@ -77,8 +78,8 @@ void batchParaParse(QString &configFile, QString &logFile)
     switch(batch)
     {
     case 0:
-        configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch0.ini";
-        logFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch0.log";
+        configFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/laptopMiniBatch0.ini";
+        logFile = "/home/h005/Documents/3dcnn/code/3DCNN/configFile/modelVideoBatch/laptopMiniBatch0.log";
         break;
     case 1:
         configFile = "/home/hejw005/Documents/3dcnn/code/configFile/modelVideoBatch/miniBatch1.ini";

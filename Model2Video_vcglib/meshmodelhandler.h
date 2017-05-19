@@ -82,9 +82,15 @@ public:
 
     void generateTrajectoryWithSeam();
 
+    void generateFramesByTrack();
+
     void clear();
 
 private:
+
+    QString getModelMatrixFile(QString model, QString feaName);
+
+    void loadInMatrix(QString matrixFile);
 
     void loadInMatrix();
 
@@ -118,6 +124,7 @@ private:
     std::fstream modelLog;
     QFileInfo featureLogFile;
     QString featureFolder;
+    QDir trajectoryFolder;
     int modelFromId;
     int modelToId;
 

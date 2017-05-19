@@ -23,6 +23,11 @@ MeshModelHandler::MeshModelHandler(QString configFileName, QString logFileName)
     // read in the matrix file
     config_matrixFile = QFileInfo(configIni.value("matrix/matrixFile").toString());
 
+    // read in the track folder
+    trajectoryFolder = QDir(configIni.value("trajectory/trajectoryFolder").toString());
+    // check whether the folder is exists
+    assert(trajectoryFolder.exists());
+
     // read in the FeaturelogFile
     QString featureLog = configIni.value("log/FeaturelogFile").toString();
     QString tmpFeatureLogFileName = QDateTime::currentDateTime().toString("yyyyMMdd");
@@ -122,15 +127,13 @@ void MeshModelHandler::generateFrames()
     }
     delete render;
     render = NULL;
-    std::cout << "get frames done!" << std::endl;
+    std::cout << "generate frames done!" << std::endl;
 }
 
 void MeshModelHandler::generateFeatures()
 {
 
     render_initialRender();
-
-    std::cout << "OpenGL initial done" << std::endl;
 
     featureExtractor = new FeatureExtractor(render);
 
@@ -223,6 +226,92 @@ void MeshModelHandler::generateTrajectoryWithSeam()
     std::cout << "generate Trajectory done!" << std::endl;;
 }
 
+///
+/// \brief MeshModelHandler::generateFramesByTrack
+/// this function will generate the video frames with
+/// the trajectory we get from the generateTrajectoryWithSeam() function
+/// For each model, this function we will create a folder for each model
+/// in the $trajectoryFolder$
+///
+///
+void MeshModelHandler::generateFramesByTrack()
+{
+
+    featureExtractor = new FeatureExtractor();
+
+    QString feaName = featureExtractor->getFeaName(featureExtractor->featureType::ViewpointEntropy);
+
+    render_initialRender();
+
+    for (int modelIndex = modelFromId; modelIndex < modelToId; modelIndex++)
+    {
+        // load in mesh to the MeshContainer
+        if ( !render_loadInMesh(modelIndex) )
+            continue;
+
+        // load the model trajectory matrix file into the camParaManager
+        // initial the modelMatrixFile here
+        QString modelMatrixFile = getModelMatrixFile(this->config_modelList[modelIndex],
+                                                     feaName);
+        // load the matrix file into the camParaManager
+        loadInMatrix(modelMatrixFile);
+
+        // then set its img folder
+        camParaManager->setImgFolder(this->trajectoryFolder,
+                                     this->config_modelList[modelIndex]);
+
+        for (int index = 0; index < camParaManager->len; index++)
+        {
+            render_setModelViewProjectionMatrix(camParaManager, index);
+
+            // rendering
+            bool res = render->rendering();
+            assert(res);
+
+//            std::cout << "imgFolder " << camParaManager->imgFolder.toStdString() << std::endl;
+//            std::cout << "imgName " << camParaManager->getImageName(index).toStdString() << std::endl;
+
+            render->storeRenderImage(camParaManager->imgFolder,
+                                     camParaManager->getImageName(index),
+                                     WIDTH_IMG,
+                                     HEIGHT_IMG);
+        }
+
+        clearMeshContainer();
+
+        modelLog << modelIndex << " " << modelToId << std::endl;
+
+    }
+
+    clearRender();
+
+    std::cout << "generate Trajectory frames done!" << std::endl;
+
+}
+
+QString MeshModelHandler::getModelMatrixFile(QString model,
+                                          QString feaName)
+{
+    model.replace('/','_');
+    int pos = model.lastIndexOf('.');
+    model = model.left(pos);
+    model = model + '_' + feaName;
+    QString matrixFile = this->featureFolder + '/' + model + ".matrix";
+    return matrixFile;
+}
+
+void MeshModelHandler::loadInMatrix(QString matrixFile)
+{
+    if( camParaManager )
+    {
+        delete camParaManager;
+        camParaManager = NULL;
+    }
+    camParaManager = new CameraParaManager(matrixFile);
+}
+
+
+
 void MeshModelHandler::loadInMatrix()
 {
     camParaManager = new CameraParaManager(this->config_matrixFile.absoluteFilePath());
@@ -309,6 +398,8 @@ void MeshModelHandler::render_initialRender()
 
     // It is necessary to show the window first
     render->show();
+
+    std::cout << "OpenGL initial done" << std::endl;
 }
 
 
